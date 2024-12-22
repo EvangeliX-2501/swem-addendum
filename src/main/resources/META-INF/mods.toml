@@ -1,0 +1,35 @@
+modLoader="javafml"
+loaderVersion="[40,)"
+license="GNU GPLv3"
+
+[[mods]]
+modId="swemaddendum"
+version="1.0"
+displayName="SWEM Addendum"
+logoFile="examplemod.png"
+credits="The SWEM Team, for the original SWEM horse model. DragN, for the new models. TaliaDemonia (for the stick), RileyCasper, Justpeachy, Starsetdragon, AshyWashyMashy, and Buu for testing."
+authors="EvangeliX"
+
+description='''
+Additional SWEM coats.
+'''
+[[dependencies.swemaddendum]]
+modId="forge"
+mandatory=true
+versionRange="[40,)"
+ordering="BEFORE"
+side="BOTH"
+
+[[dependencies.swemaddendum]]
+modId="minecraft"
+mandatory=true
+versionRange="[1.18.2,1.19)"
+ordering="BEFORE"
+side="BOTH"
+
+[[dependencies.swemaddendum]]
+modId="swem"
+mandatory=true
+versionRange="[1.4.6,)"
+ordering="BEFORE"
+side="BOTH"
