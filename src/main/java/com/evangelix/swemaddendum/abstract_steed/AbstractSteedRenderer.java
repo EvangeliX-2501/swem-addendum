@@ -2,8 +2,10 @@ package com.evangelix.swemaddendum.abstract_steed;
 
 import com.alaharranhonor.swem.forge.client.model.ModelBoneType;
 import com.alaharranhonor.swem.forge.client.render.SWEMHorseRenderer;
+import com.alaharranhonor.swem.forge.entities.horse.HorseModelType;
 import com.alaharranhonor.swem.forge.entities.horse.SWEMHorseEntity;
 import com.alaharranhonor.swem.forge.items.tack.HorseArmorTier;
+import com.alaharranhonor.swem.forge.items.tack.TackItem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
@@ -43,7 +45,6 @@ public abstract class AbstractSteedRenderer extends SWEMHorseRenderer implements
 
     public AbstractSteedRenderer(EntityRendererProvider.Context renderManagerIn) {
         super(renderManagerIn);
-        this.addRenderLayer(new CleanlinessRenderLayer(this));
     }
 
     @Override
@@ -155,25 +156,38 @@ public abstract class AbstractSteedRenderer extends SWEMHorseRenderer implements
 
         String boneName = bone.getName();
         if(boneName.contains(ModelBoneType.WINGS.bone)) {
-            ItemStack stack = currentEntity.getArmor();
             ResourceLocation location = this.getTextureLocation(currentEntity);
-            if(!stack.isEmpty()) {
-                HorseArmorTier tier = currentEntity.getArmorTier();
-                if(tier.getTier() >= HorseArmorTier.AMETHYST.getTier()) {
-                    if(WING_CACHE.containsKey(location)) {
-                        return WING_CACHE.get(location);
-                    } else if(!NO_WING_CACHE.contains(location)) {
-                        String locationString = location.toString();
-                        locationString = locationString.replace(".png", "_wings.png");
-                        ResourceLocation texture = ResourceLocation.tryParse(locationString);
+            if(WING_CACHE.containsKey(location)) {
+                bone.setHidden(false);
+                return WING_CACHE.get(location);
+            } else if(!NO_WING_CACHE.contains(location)) {
+                ResourceLocation texture = ResourceLocation.tryParse(location.toString().replace(".png", "_wings.png"));
+                if(texture != null && Minecraft.getInstance().getResourceManager().getResource(texture).isPresent()) {
+                    WING_CACHE.put(location, texture);
+                    return texture;
+                } else {
+                    NO_WING_CACHE.add(location);
+                }
+            }
 
-                        if(texture != null && Minecraft.getInstance().getResourceManager().getResource(texture).isPresent()) {
-                            WING_CACHE.put(location, texture);
-                            return texture;
-                        } else {
-                            NO_WING_CACHE.add(location);
-                        }
-                    }
+            bone.setHidden(true);
+
+            ItemStack item = currentEntity.getArmor();
+            if(!item.isEmpty()) {
+                TackItem tackItem = TackItem.as(item);
+                if(currentEntity.getArmorTier().getTier() >= HorseArmorTier.AMETHYST.getTier()) {
+                    bone.setHidden(false);
+                    return tackItem.getTextureOnHorse(HorseModelType.LEGACY, ModelBoneType.WINGS);
+                }
+            }
+            return null;
+        } else if(boneName.contains(ModelBoneType.ARMOR.bone)) {
+            ItemStack itemStack = currentEntity.getArmor();
+            if(!itemStack.isEmpty()) {
+                HorseArmorTier tier = currentEntity.getArmorTier();
+                ResourceLocation location = this.getTextureLocation(currentEntity);
+                if(tier.getTier() >= HorseArmorTier.AMETHYST.getTier() && WING_CACHE.containsKey(location)) {
+                    return null;
                 }
             }
         }

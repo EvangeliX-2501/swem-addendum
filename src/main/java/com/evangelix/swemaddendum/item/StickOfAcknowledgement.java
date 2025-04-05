@@ -9,6 +9,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 public class StickOfAcknowledgement extends Item {
     public StickOfAcknowledgement() {
@@ -16,7 +17,7 @@ public class StickOfAcknowledgement extends Item {
     }
 
     @Override
-    public InteractionResult interactLivingEntity(ItemStack itemStack, Player player, LivingEntity livingEntity, InteractionHand hand) {
+    public @NotNull InteractionResult interactLivingEntity(@NotNull ItemStack itemStack, Player player, @NotNull LivingEntity livingEntity, @NotNull InteractionHand hand) {
         if(player.level().isClientSide()) {
             return super.interactLivingEntity(itemStack, player, livingEntity, hand);
         }
@@ -24,8 +25,6 @@ public class StickOfAcknowledgement extends Item {
         if(livingEntity instanceof AbstractSteed abstractSteed) {
             player.sendSystemMessage(Component.literal("Texture: " + abstractSteed.getCoat().toString()).withStyle(ChatFormatting.ITALIC, ChatFormatting.GRAY));
             player.sendSystemMessage(Component.literal("Foal Texture: " + abstractSteed.getFoalCoat().toString()).withStyle(ChatFormatting.ITALIC, ChatFormatting.GRAY));
-            player.sendSystemMessage(Component.literal("Personality: ").append(abstractSteed.getPersonality().name).withStyle(ChatFormatting.ITALIC, ChatFormatting.GRAY));
-            player.sendSystemMessage(Component.literal("Cleanliness: ").append(abstractSteed.getCleanliness().name).withStyle(ChatFormatting.ITALIC, ChatFormatting.GRAY));
             return InteractionResult.SUCCESS;
         }
 
