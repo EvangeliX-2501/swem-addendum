@@ -6,7 +6,6 @@ import com.alaharranhonor.swem.forge.entities.horse.behaviors.impl.LineageBehavi
 import com.evangelix.swemaddendum.SwemAddendumMain;
 import com.evangelix.swemaddendum.abstract_steed.AbstractSteed;
 import com.evangelix.swemaddendum.breeds.mule.Mule;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.Entity;
@@ -40,11 +39,6 @@ public class Donkey extends AbstractSteed {
 
             entity.setPos(x, y, z);
         }
-    }
-
-    @Override
-    public boolean canMate(Animal animal) {
-        return animal instanceof SWEMHorseEntity;
     }
 
     @Override

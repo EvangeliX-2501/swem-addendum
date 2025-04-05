@@ -82,9 +82,9 @@ repositories {
 
 dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
-    implementation fg.deobf("curse.maven:geckolib-388172:5188427")
+    implementation fg.deobf("curse.maven:geckolib-388172:6658942")
     implementation fg.deobf("curse.maven:playeranimator-658587:4587214")
-    implementation fg.deobf("curse.maven:swem-582697:6054461")
+    implementation fg.deobf("curse.maven:swem-582697:6739081")
 }
 
 def resourceTargets = ['META-INF/mods.toml', 'pack.mcmeta']

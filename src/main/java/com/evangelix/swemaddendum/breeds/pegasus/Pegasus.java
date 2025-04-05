@@ -13,11 +13,6 @@ public class Pegasus extends AbstractSteed {
     }
 
     @Override
-    public void setPegasus() {
-        this.getCoatBehavior().set(BaseCoats.SWIFT_WIND_SHE_RA);
-    }
-
-    @Override
     public String getFolderName() {
         return "pegasus";
     }

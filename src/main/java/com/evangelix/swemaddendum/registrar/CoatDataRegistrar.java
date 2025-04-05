@@ -1,5 +1,6 @@
-package com.evangelix.swemaddendum;
+package com.evangelix.swemaddendum.registrar;
 
+import com.evangelix.swemaddendum.SwemAddendumMain;
 import com.evangelix.swemaddendum.abstract_steed.AbstractSteed;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.SynchedEntityData;
