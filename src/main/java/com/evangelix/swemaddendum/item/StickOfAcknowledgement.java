@@ -24,8 +24,6 @@ public class StickOfAcknowledgement extends Item {
         if(livingEntity instanceof AbstractSteed abstractSteed) {
             player.sendSystemMessage(Component.literal("Texture: " + abstractSteed.getCoat().toString()).withStyle(ChatFormatting.ITALIC, ChatFormatting.GRAY));
             player.sendSystemMessage(Component.literal("Foal Texture: " + abstractSteed.getFoalCoat().toString()).withStyle(ChatFormatting.ITALIC, ChatFormatting.GRAY));
-            player.sendSystemMessage(Component.literal("Personality: ").append(abstractSteed.getPersonality().name).withStyle(ChatFormatting.ITALIC, ChatFormatting.GRAY));
-            player.sendSystemMessage(Component.literal("Cleanliness: ").append(abstractSteed.getCleanliness().name).withStyle(ChatFormatting.ITALIC, ChatFormatting.GRAY));
             return InteractionResult.SUCCESS;
         }
 

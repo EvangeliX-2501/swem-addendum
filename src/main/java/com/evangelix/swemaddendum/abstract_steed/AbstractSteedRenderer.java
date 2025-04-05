@@ -38,12 +38,9 @@ public abstract class AbstractSteedRenderer extends SWEMHorseRenderer implements
     public static final Map<ResourceLocation, ResourceLocation> WING_CACHE = new HashMap<>();
     public static final Set<ResourceLocation> NO_WING_CACHE = new HashSet<>();
 
-    public boolean isReRendering = false;
-
 
     public AbstractSteedRenderer(EntityRendererProvider.Context renderManagerIn) {
         super(renderManagerIn);
-        this.addRenderLayer(new CleanlinessRenderLayer(this));
     }
 
     @Override
@@ -51,21 +48,7 @@ public abstract class AbstractSteedRenderer extends SWEMHorseRenderer implements
 
     @Override
     public ResourceLocation getTextureLocation(SWEMHorseEntity animatable) {
-        return this.isReRendering ? null : this.getGeoModel().getTextureResource(animatable);
-    }
-
-    @Override
-    public void updateAnimatedTextureFrame(SWEMHorseEntity animatable) {
-        if(!this.isReRendering) {
-            super.updateAnimatedTextureFrame(animatable);
-        }
-    }
-
-    @Override
-    public void reRender(BakedGeoModel model, PoseStack poseStack, MultiBufferSource bufferSource, SWEMHorseEntity animatable, RenderType renderType, VertexConsumer buffer, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
-        this.isReRendering = true;
-        super.reRender(model, poseStack, bufferSource, animatable, renderType, buffer, partialTick, packedLight, packedOverlay, red, green, blue, alpha);
-        this.isReRendering = false;
+        return this.getGeoModel().getTextureResource(animatable);
     }
 
     @Override
@@ -149,10 +132,6 @@ public abstract class AbstractSteedRenderer extends SWEMHorseRenderer implements
 
     @Override
     public @Nullable ResourceLocation getTextureOverrideForBone(GeoBone bone, SWEMHorseEntity currentEntity, float partialTick) {
-        if(this.isReRendering) {
-            return null;
-        }
-
         String boneName = bone.getName();
         if(boneName.contains(ModelBoneType.WINGS.bone)) {
             ItemStack stack = currentEntity.getArmor();

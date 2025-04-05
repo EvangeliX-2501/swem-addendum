@@ -19,9 +19,6 @@ import com.evangelix.swemaddendum.breeds.shire.ShireRenderer;
 import com.evangelix.swemaddendum.breeds.thoroughbred.ThoroughbredRenderer;
 import com.evangelix.swemaddendum.breeds.turkoman.TurkomanRenderer;
 import com.evangelix.swemaddendum.breeds.warmblood.WarmbloodRenderer;
-import com.evangelix.swemaddendum.gui.inventory.AddendumScreen;
-import com.evangelix.swemaddendum.gui.inventory.TraitScreen;
-import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -33,9 +30,6 @@ public class SwemAddendumEvent {
 
     @SubscribeEvent
     public static void clientSetupEvent(FMLClientSetupEvent event) {
-        MenuScreens.register(SwemAddendumMain.ADDENDUM_MENU.get(), AddendumScreen::new);
-        MenuScreens.register(SwemAddendumMain.TRAIT_MENU.get(), TraitScreen::new);
-
         EntityRenderers.register(SwemAddendumMain.AMERICAN_QUARTER_HORSE.get(), AmericanQuarterHorseRenderer::new);
         EntityRenderers.register(SwemAddendumMain.ARABIAN.get(), ArabianRenderer::new);
         EntityRenderers.register(SwemAddendumMain.BRETON.get(), BretonRenderer::new);
