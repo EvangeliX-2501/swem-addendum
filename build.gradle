@@ -20,6 +20,7 @@ java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 println "Java: ${System.getProperty 'java.version'}, JVM: ${System.getProperty 'java.vm.version'} (${System.getProperty 'java.vendor'}), Arch: ${System.getProperty 'os.arch'}"
 minecraft {
     mappings channel: mapping_channel, version: mapping_version
+    accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
 
     copyIdeResources = true
   runs {
@@ -82,9 +83,17 @@ repositories {
 
 dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
+    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
     implementation fg.deobf("curse.maven:geckolib-388172:5188427")
     implementation fg.deobf("curse.maven:playeranimator-658587:4587214")
     implementation fg.deobf("curse.maven:swem-582697:6054461")
+}
+
+mixin {
+    add sourceSets.main, 'mixins.swemaddendumplus.refmap.json'
+    config 'mixins.swemaddendumplus.json'
+    debug.verbose = true
+    debug.export = true
 }
 
 def resourceTargets = ['META-INF/mods.toml', 'pack.mcmeta']

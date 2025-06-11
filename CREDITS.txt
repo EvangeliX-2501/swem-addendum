@@ -1,4 +1,4 @@
-Code: EvangeliX
-Assets: DragN, EvangeliX
-Testers: RileyCasper, Justpeachy, Starsetdragon, AshyWashyMashy, TaliaDemonia (also thxs for the stick), Buu
+Code: EvangeliX, ElectricVersion
+Assets: DragN, EvangeliX, Moo
+Testers: RileyCasper, Justpeachy, Starsetdragon, AshyWashyMashy, TaliaDemonia (also thxs for the stick), Buu, Moo, ElectricVersion (I would never be caught using mixins, all mixin code was created by ElectricVersion)
 
