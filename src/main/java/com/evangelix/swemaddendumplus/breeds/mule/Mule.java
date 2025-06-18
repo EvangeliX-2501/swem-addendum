@@ -58,7 +58,7 @@ public class Mule extends AbstractSteed {
     }
 
     public int getMaxJumpDefault() {
-        return 2;
+        return 1;
     }
 }
 

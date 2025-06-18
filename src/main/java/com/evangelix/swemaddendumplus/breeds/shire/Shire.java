@@ -30,7 +30,7 @@ public class Shire extends AbstractSteed {
     }
 
     public int getMaxJumpDefault() {
-        return 2;
+        return 1;
     }
 }
 

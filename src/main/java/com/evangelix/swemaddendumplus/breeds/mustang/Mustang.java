@@ -53,7 +53,7 @@ public class Mustang extends AbstractSteed {
     }
 
     public int getMaxJumpDefault() {
-        return 3;
+        return 2;
     }
 }
 
