@@ -1,0 +1,24 @@
+{
+  "replace": false,
+  "values": [
+    "swemaddendum:american_quarter_horse",
+    "swemaddendum:arabian",
+    "swemaddendum:breton",
+    "swemaddendum:donkey",
+    "swemaddendum:fjord",
+    "swemaddendum:friesian",
+    "swemaddendum:steed",
+    "swemaddendum:irish_draught",
+    "swemaddendum:kladruber",
+    "swemaddendum:knabstrupper",
+    "swemaddendum:marwari",
+    "swemaddendum:mule",
+    "swemaddendum:mustang",
+    "swemaddendum:pegasus",
+    "swemaddendum:shire",
+    "swemaddendum:thoroughbred",
+    "swemaddendum:turkoman",
+    "swemaddendum:warmblood",
+    "swem:swem_horse"
+  ]
+}
