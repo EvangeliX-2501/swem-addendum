@@ -1,122 +1,108 @@
 package com.evangelix.swemaddendum;
 
+//import com.evangelix.swemaddendum.abstract_steed.AbstractSteed;
+
 import com.evangelix.swemaddendum.abstract_steed.AbstractSteed;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.network.NetworkEvent;
-import net.minecraftforge.network.NetworkRegistry;
-import net.minecraftforge.network.simple.SimpleChannel;
+import net.minecraft.world.entity.player.Player;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
+import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
-import java.util.function.Supplier;
-
-@Mod.EventBusSubscriber(modid = SwemAddendumMain.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(modid = SwemAddendumMain.MODID)
 public class AddendumNetwork {
-    public static class ApplyTexture {
-        public final int id;
-        public final ResourceLocation coat;
-        public final boolean isFoal;
+    public record ApplyTexture(int id, ResourceLocation coat, boolean isFoal) implements CustomPacketPayload {
+        public static final CustomPacketPayload.Type<ApplyTexture> TYPE = new CustomPacketPayload.Type<>(ResourceLocation.fromNamespaceAndPath(SwemAddendumMain.MODID, "apply_texture"));
+        public static final StreamCodec<FriendlyByteBuf, ApplyTexture> STREAM_CODEC = new StreamCodec<>() {
+            @Override
+            public void encode(FriendlyByteBuf buffer, ApplyTexture value) {
+                buffer.writeInt(value.id);
+                buffer.writeResourceLocation(value.coat);
+                buffer.writeBoolean(value.isFoal);
+            }
 
-        public ApplyTexture(int id, ResourceLocation coat, boolean isFoal) {
-            this.id = id;
-            this.coat = coat;
-            this.isFoal = isFoal;
+            @Override
+            public ApplyTexture decode(FriendlyByteBuf buffer) {
+                int id = buffer.readInt();
+                ResourceLocation coat = buffer.readResourceLocation();
+                boolean isFoal = buffer.readBoolean();
+                return new ApplyTexture(id, coat, isFoal);
+            }
+        };
+
+        @Override
+        public Type<? extends CustomPacketPayload> type() {
+            return TYPE;
         }
 
-        public static void encode(ApplyTexture msg, FriendlyByteBuf buf) {
-            buf.writeInt(msg.id);
-            buf.writeResourceLocation(msg.coat);
-            buf.writeBoolean(msg.isFoal);
-        }
-
-        public static ApplyTexture decode(FriendlyByteBuf buf) {
-            int id = buf.readInt();
-            ResourceLocation coat = buf.readResourceLocation();
-            boolean foal = buf.readBoolean();
-
-            return new ApplyTexture(id, coat, foal);
-        }
-
-        public static void handle(ApplyTexture msg, Supplier<NetworkEvent.Context> contextSupplier) {
-            NetworkEvent.Context ctx = contextSupplier.get();
+        public static void handler(ApplyTexture msg, IPayloadContext ctx) {
             ctx.enqueueWork(() -> {
-                ServerPlayer serverPlayer = ctx.getSender();
-                if(serverPlayer != null) {
-                    Entity entity = serverPlayer.level().getEntity(msg.id);
-                    if(entity instanceof AbstractSteed abstractSteed) {
-                        if(msg.isFoal) {
-                            abstractSteed.setFoalCoat(msg.coat);
-                        } else {
-                            abstractSteed.setCoat(msg.coat);
-                        }
-                    }
-                }
+               Player player = ctx.player();
+               if(player instanceof ServerPlayer) {
+                   Entity entity = player.level().getEntity(msg.id);
+                   if(entity instanceof AbstractSteed abstractSteed) {
+                       if(msg.isFoal) {
+                           abstractSteed.setFoalCoat(msg.coat);
+                       } else {
+                           abstractSteed.setCoat(msg.coat);
+                       }
+                   }
+               }
             });
-            ctx.setPacketHandled(true);
         }
     }
 
-    public static class TextureRequest {
-        public final int id;
-        public final String folderName;
-        public final boolean isFoal;
-        public final boolean useServerCoats;
+    public record TextureRequest(int id, String folderName, boolean isFoal, boolean useServerCoats) implements CustomPacketPayload {
+        public static final CustomPacketPayload.Type<TextureRequest> TYPE = new CustomPacketPayload.Type<>(ResourceLocation.fromNamespaceAndPath(SwemAddendumMain.MODID, "texture_request"));
+        public static final StreamCodec<FriendlyByteBuf, TextureRequest> STREAM_CODEC = new StreamCodec<>() {
+            @Override
+            public TextureRequest decode(FriendlyByteBuf buffer) {
+                int id = buffer.readInt();
+                String folderName = buffer.readUtf();
+                boolean isFoal = buffer.readBoolean();
+                boolean useServerCoats = buffer.readBoolean();
+                return new TextureRequest(id, folderName, isFoal, useServerCoats);
+            }
 
-        public TextureRequest(int id, String folderName, boolean isFoal, boolean useServerCoats) {
-            this.id = id;
-            this.folderName = folderName;
-            this.isFoal = isFoal;
-            this.useServerCoats = useServerCoats;
+            @Override
+            public void encode(FriendlyByteBuf buffer, TextureRequest value) {
+                buffer.writeInt(value.id);
+                buffer.writeUtf(value.folderName);
+                buffer.writeBoolean(value.isFoal);
+                buffer.writeBoolean(value.useServerCoats);
+            }
+        };
+
+        @Override
+        public Type<? extends CustomPacketPayload> type() {
+            return TYPE;
         }
 
-        public static void encode(TextureRequest msg, FriendlyByteBuf buf) {
-            buf.writeInt(msg.id);
-            buf.writeUtf(msg.folderName);
-            buf.writeBoolean(msg.isFoal);
-            buf.writeBoolean(msg.useServerCoats);
-        }
-
-        public static TextureRequest decode(FriendlyByteBuf buf) {
-            int id = buf.readInt();
-            String folderName = buf.readUtf();
-            boolean isFoal = buf.readBoolean();
-            boolean useServerCoats = buf.readBoolean();
-
-            return new TextureRequest(id, folderName, isFoal, useServerCoats);
-        }
-
-        public static void handle(TextureRequest msg, Supplier<NetworkEvent.Context> contextSupplier) {
-            NetworkEvent.Context ctx = contextSupplier.get();
+        public static void handler(TextureRequest msg, IPayloadContext ctx) {
             ctx.enqueueWork(() -> {
                 LocalPlayer player = Minecraft.getInstance().player;
                 if(player != null) {
                     ResourceLocation coat = msg.useServerCoats ? TextureGen.getRandomServerCoat(msg.folderName) : TextureGen.getRandomClientCoat(msg.folderName);
-                    INSTANCE.sendToServer(new ApplyTexture(msg.id, coat, msg.isFoal));
+                    PacketDistributor.sendToServer(new ApplyTexture(msg.id, coat, msg.isFoal));
                 }
             });
-            ctx.setPacketHandled(true);
         }
     }
 
-    public static final String PROTOCOL_VERSION = "1";
-    public static final SimpleChannel INSTANCE = NetworkRegistry.newSimpleChannel(
-            new ResourceLocation(SwemAddendumMain.MODID, "addendum_network"),
-            () -> PROTOCOL_VERSION,
-            PROTOCOL_VERSION::equals,
-            PROTOCOL_VERSION::equals
-    );
-
     @SubscribeEvent
-    public static void commonSetupEvent(FMLCommonSetupEvent event) {
-        event.enqueueWork(() -> {
-            INSTANCE.registerMessage(0, ApplyTexture.class, ApplyTexture::encode, ApplyTexture::decode, ApplyTexture::handle);
-            INSTANCE.registerMessage(1, TextureRequest.class, TextureRequest::encode, TextureRequest::decode, TextureRequest::handle);
-        });
+    public static void commonSetupEvent(RegisterPayloadHandlersEvent event) {
+        PayloadRegistrar registrar = event.registrar("1");
+        registrar.commonBidirectional(ApplyTexture.TYPE, ApplyTexture.STREAM_CODEC, ApplyTexture::handler);
+        registrar.commonBidirectional(TextureRequest.TYPE, TextureRequest.STREAM_CODEC, TextureRequest::handler);
     }
 }

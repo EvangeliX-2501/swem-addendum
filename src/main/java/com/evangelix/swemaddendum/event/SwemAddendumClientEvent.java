@@ -1,0 +1,52 @@
+package com.evangelix.swemaddendum.event;
+
+import com.alaharranhonor.swem.entity.horse.AbstractSwemHorse;
+import com.evangelix.swemaddendum.SwemAddendumMain;
+import com.evangelix.swemaddendum.breeds.american_quarter_horse.AmericanQuarterHorseRenderer;
+import com.evangelix.swemaddendum.breeds.arabian.ArabianRenderer;
+import com.evangelix.swemaddendum.breeds.breton.BretonRenderer;
+import com.evangelix.swemaddendum.breeds.donkey.DonkeyRenderer;
+import com.evangelix.swemaddendum.breeds.fjord.FjordRenderer;
+import com.evangelix.swemaddendum.breeds.friesian.FriesianRenderer;
+import com.evangelix.swemaddendum.breeds.irish_draught.IrishDraughtRenderer;
+import com.evangelix.swemaddendum.breeds.kladruber.KladruberRenderer;
+import com.evangelix.swemaddendum.breeds.knabstrupper.KnabstrupperRenderer;
+import com.evangelix.swemaddendum.breeds.marwari.MarwariRenderer;
+import com.evangelix.swemaddendum.breeds.mule.MuleRenderer;
+import com.evangelix.swemaddendum.breeds.mustang.MustangRenderer;
+import com.evangelix.swemaddendum.breeds.pegasus.PegasusRenderer;
+import com.evangelix.swemaddendum.breeds.shire.ShireRenderer;
+import com.evangelix.swemaddendum.breeds.thoroughbred.ThoroughbredRenderer;
+import com.evangelix.swemaddendum.breeds.turkoman.TurkomanRenderer;
+import com.evangelix.swemaddendum.breeds.warmblood.WarmbloodRenderer;
+import net.minecraft.client.renderer.entity.EntityRenderers;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
+
+@EventBusSubscriber(modid = SwemAddendumMain.MODID, value = Dist.CLIENT)
+public class SwemAddendumClientEvent {
+
+    @SubscribeEvent
+    public static void clientSetupEvent(FMLClientSetupEvent event) {
+        EntityRenderers.register(SwemAddendumMain.AMERICAN_QUARTER_HORSE.get(), AmericanQuarterHorseRenderer::new);
+        EntityRenderers.register(SwemAddendumMain.ARABIAN.get(), ArabianRenderer::new);
+        EntityRenderers.register(SwemAddendumMain.BRETON.get(), BretonRenderer::new);
+        EntityRenderers.register(SwemAddendumMain.DONKEY.get(), DonkeyRenderer::new);
+        EntityRenderers.register(SwemAddendumMain.FJORD.get(), FjordRenderer::new);
+        EntityRenderers.register(SwemAddendumMain.FRIESIAN.get(), FriesianRenderer::new);
+        EntityRenderers.register(SwemAddendumMain.IRISH_DRAUGHT.get(), IrishDraughtRenderer::new);
+        EntityRenderers.register(SwemAddendumMain.KLADRUBER.get(), KladruberRenderer::new);
+        EntityRenderers.register(SwemAddendumMain.KNABSTRUPPER.get(), KnabstrupperRenderer::new);
+        EntityRenderers.register(SwemAddendumMain.MARWARI.get(), MarwariRenderer::new);
+        EntityRenderers.register(SwemAddendumMain.MULE.get(), MuleRenderer::new);
+        EntityRenderers.register(SwemAddendumMain.MUSTANG.get(), MustangRenderer::new);
+        EntityRenderers.register(SwemAddendumMain.PEGASUS.get(), PegasusRenderer::new);
+        EntityRenderers.register(SwemAddendumMain.SHIRE.get(), ShireRenderer::new);
+        EntityRenderers.register(SwemAddendumMain.THOROUGHBRED.get(), ThoroughbredRenderer::new);
+        EntityRenderers.register(SwemAddendumMain.TURKOMAN.get(), TurkomanRenderer::new);
+        EntityRenderers.register(SwemAddendumMain.WARMBLOOD.get(), WarmbloodRenderer::new);
+    }
+}

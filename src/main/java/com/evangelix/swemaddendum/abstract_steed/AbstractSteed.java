@@ -1,49 +1,50 @@
 package com.evangelix.swemaddendum.abstract_steed;
 
-import com.alaharranhonor.swem.forge.entities.horse.SWEMHorseEntity;
-import com.alaharranhonor.swem.forge.entities.horse.SWEMHorseEntityBase;
-import com.alaharranhonor.swem.forge.entities.horse.behaviors.impl.LineageBehavior;
-import com.alaharranhonor.swem.forge.entities.horse.coats.BaseCoats;
+import com.alaharranhonor.swem.entity.horse.AbstractSwemHorse;
+import com.alaharranhonor.swem.entity.horse.LegacySwemHorse;
+import com.alaharranhonor.swem.entity.horse.behaviors.impl.LineageBehavior;
 import com.evangelix.swemaddendum.AddendumNetwork;
-import com.evangelix.swemaddendum.registrar.CoatDataRegistrar;
 import com.evangelix.swemaddendum.SwemAddendumMain;
 import com.evangelix.swemaddendum.breeds.donkey.Donkey;
 import com.evangelix.swemaddendum.breeds.mule.Mule;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializer;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.dedicated.DedicatedServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.DifficultyInstance;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.animal.Animal;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.pathfinder.Path;
-import net.minecraftforge.network.PacketDistributor;
-import org.jetbrains.annotations.NotNull;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
 
-public abstract class AbstractSteed extends SWEMHorseEntity {
+public abstract class AbstractSteed extends LegacySwemHorse {
+    public static final ResourceLocation MISSING_TEXTURE_LOCATION = ResourceLocation.withDefaultNamespace("missingno");
+
+    public static final EntityDataAccessor<ResourceLocation> COAT = SynchedEntityData.defineId(AbstractSteed.class, SwemAddendumMain.RESOURCE_LOCATION.get());
+    public static final EntityDataAccessor<ResourceLocation> FOAL_COAT = SynchedEntityData.defineId(AbstractSteed.class, SwemAddendumMain.RESOURCE_LOCATION.get());
+
 
     public abstract String getFolderName();
     public abstract String getFoalFolderName();
 
-    public AbstractSteed(EntityType<? extends SWEMHorseEntityBase> type, Level worldIn) {
+    public AbstractSteed(EntityType<? extends AbstractSwemHorse> type, Level worldIn) {
         super(type, worldIn);
-        CoatDataRegistrar.apply(this);
     }
 
     @Override
-    public void onAddedToWorld() {
-        super.onAddedToWorld();
+    public void onAddedToLevel() {
+        super.onAddedToLevel();
         if(!this.level().isClientSide()) {
             int id = this.getId();
             String folderName = this.getFolderName();
@@ -57,14 +58,12 @@ public abstract class AbstractSteed extends SWEMHorseEntity {
                 }
             }
 
-            if(this.getCoat() == CoatDataRegistrar.MISSING_TEXTURE_LOCATION) {
-                AddendumNetwork.INSTANCE.send(PacketDistributor.TRACKING_ENTITY.with(() -> this),
-                        new AddendumNetwork.TextureRequest(id, folderName, false, useServerCoats));
+            if(this.getCoat() == MISSING_TEXTURE_LOCATION) {
+                PacketDistributor.sendToPlayersTrackingEntity(this, new AddendumNetwork.TextureRequest(id, folderName, false, useServerCoats));
             }
 
-            if(this.getFoalCoat() == CoatDataRegistrar.MISSING_TEXTURE_LOCATION) {
-                AddendumNetwork.INSTANCE.send(PacketDistributor.TRACKING_ENTITY.with(() -> this),
-                        new AddendumNetwork.TextureRequest(id, foalFolderName, true, useServerCoats));
+            if(this.getFoalCoat() == MISSING_TEXTURE_LOCATION) {
+                PacketDistributor.sendToPlayersTrackingEntity(this, new AddendumNetwork.TextureRequest(id, foalFolderName, true, useServerCoats));
             }
         }
     }
@@ -76,19 +75,26 @@ public abstract class AbstractSteed extends SWEMHorseEntity {
     }
 
     public ResourceLocation getCoat() {
-        return this.entityData.get(CoatDataRegistrar.COAT);
+        return this.entityData.get(COAT);
     }
 
     public void setCoat(ResourceLocation resourceLocation) {
-        this.entityData.set(CoatDataRegistrar.COAT, resourceLocation);
+        this.entityData.set(COAT, resourceLocation);
     }
 
     public ResourceLocation getFoalCoat() {
-        return this.entityData.get(CoatDataRegistrar.FOAL_COAT);
+        return this.entityData.get(FOAL_COAT);
     }
 
     public void setFoalCoat(ResourceLocation foalTexture) {
-        this.entityData.set(CoatDataRegistrar.FOAL_COAT, foalTexture);
+        this.entityData.set(FOAL_COAT, foalTexture);
+    }
+
+    @Override
+    public void defineSynchedData(SynchedEntityData.Builder builder) {
+        super.defineSynchedData(builder);
+        builder.define(FOAL_COAT, MISSING_TEXTURE_LOCATION);
+        builder.define(COAT, MISSING_TEXTURE_LOCATION);
     }
 
     @Override
@@ -97,7 +103,7 @@ public abstract class AbstractSteed extends SWEMHorseEntity {
         if (compound.contains("Texture")) {
             ResourceLocation texture = ResourceLocation.tryParse(compound.getString("Texture"));
             if (texture == null) {
-                texture = CoatDataRegistrar.MISSING_TEXTURE_LOCATION;
+                texture = MISSING_TEXTURE_LOCATION;
             }
             this.setCoat(texture);
         }
@@ -105,7 +111,7 @@ public abstract class AbstractSteed extends SWEMHorseEntity {
         if(compound.contains("FoalTexture")) {
             ResourceLocation foalTexture = ResourceLocation.tryParse(compound.getString("FoalTexture"));
             if(foalTexture == null) {
-                foalTexture = CoatDataRegistrar.MISSING_TEXTURE_LOCATION;
+                foalTexture = MISSING_TEXTURE_LOCATION;
             }
             this.setFoalCoat(foalTexture);
         }
@@ -120,30 +126,30 @@ public abstract class AbstractSteed extends SWEMHorseEntity {
 
     @Nullable
     @Override
-    public SpawnGroupData finalizeSpawn(ServerLevelAccessor levelIn, DifficultyInstance difficultyIn, MobSpawnType reason, @Nullable SpawnGroupData spawnDataIn, @Nullable CompoundTag dataTag) {
-        ResourceLocation texture = CoatDataRegistrar.MISSING_TEXTURE_LOCATION;
-        if (dataTag != null && dataTag.contains("Texture")) {
-            texture = ResourceLocation.tryParse(dataTag.getString("Texture"));
-            if (texture == null) {
-                texture = CoatDataRegistrar.MISSING_TEXTURE_LOCATION;
-            }
-        }
-        this.setCoat(texture);
-
-        ResourceLocation foalTexture = CoatDataRegistrar.MISSING_TEXTURE_LOCATION;
-        if(dataTag != null && dataTag.contains("FoalTexture")) {
-            foalTexture = ResourceLocation.tryParse(dataTag.getString("FoalTexture"));
-            if(foalTexture == null) {
-                foalTexture = CoatDataRegistrar.MISSING_TEXTURE_LOCATION;
-            }
-        }
-        this.setFoalCoat(foalTexture);
-        return super.finalizeSpawn(levelIn, difficultyIn, reason, spawnDataIn, dataTag);
+    public SpawnGroupData finalizeSpawn(ServerLevelAccessor levelIn, DifficultyInstance difficultyIn, MobSpawnType reason, @Nullable SpawnGroupData spawnDataIn) {
+//        ResourceLocation texture = CoatDataRegistrar.MISSING_TEXTURE_LOCATION;
+//        if (dataTag != null && dataTag.contains("Texture")) {
+//            texture = ResourceLocation.tryParse(dataTag.getString("Texture"));
+//            if (texture == null) {
+//                texture = CoatDataRegistrar.MISSING_TEXTURE_LOCATION;
+//            }
+//        }
+//        this.setCoat(texture);
+//
+//        ResourceLocation foalTexture = CoatDataRegistrar.MISSING_TEXTURE_LOCATION;
+//        if(dataTag != null && dataTag.contains("FoalTexture")) {
+//            foalTexture = ResourceLocation.tryParse(dataTag.getString("FoalTexture"));
+//            if(foalTexture == null) {
+//                foalTexture = CoatDataRegistrar.MISSING_TEXTURE_LOCATION;
+//            }
+//        }
+//        this.setFoalCoat(foalTexture);
+        return super.finalizeSpawn(levelIn, difficultyIn, reason, spawnDataIn);
     }
 
     @Override
     public boolean canMate(Animal animal) {
-        if(animal != this && animal instanceof SWEMHorseEntityBase swemHorseEntityBase) {
+        if(animal != this && animal instanceof AbstractSwemHorse swemHorseEntityBase) {
             if(swemHorseEntityBase.getBreeding().isInfertile() || this.getBreeding().isInfertile()) {
                 return false; // should prevent a bug where females set in love, then made infertile, still can get pregnant
             }

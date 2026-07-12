@@ -1,11 +1,11 @@
 package com.evangelix.swemaddendum.abstract_steed;
 
-import com.alaharranhonor.swem.forge.client.model.ModelBoneType;
-import com.alaharranhonor.swem.forge.client.render.SWEMHorseRenderer;
-import com.alaharranhonor.swem.forge.entities.horse.HorseModelType;
-import com.alaharranhonor.swem.forge.entities.horse.SWEMHorseEntity;
-import com.alaharranhonor.swem.forge.items.tack.HorseArmorTier;
-import com.alaharranhonor.swem.forge.items.tack.TackItem;
+import com.alaharranhonor.swem.client.horse.render.SwemHorseRenderer;
+import com.alaharranhonor.swem.client.model.ModelBoneType;
+import com.alaharranhonor.swem.entity.horse.HorseModelType;
+import com.alaharranhonor.swem.entity.horse.LegacySwemHorse;
+import com.alaharranhonor.swem.item.tack.HorseArmorTier;
+import com.alaharranhonor.swem.item.tack.TackItem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
@@ -15,18 +15,16 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
+import software.bernie.geckolib.animation.AnimationState;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.constant.DataTickets;
-import software.bernie.geckolib.core.animatable.GeoAnimatable;
-import software.bernie.geckolib.core.animation.AnimationState;
 import software.bernie.geckolib.model.GeoModel;
 import software.bernie.geckolib.model.data.EntityModelData;
 
@@ -35,121 +33,119 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public abstract class AbstractSteedRenderer extends SWEMHorseRenderer implements GeoRendererHack<SWEMHorseEntity> {
+public abstract class AbstractSteedRenderer extends SwemHorseRenderer implements GeoRendererHack<LegacySwemHorse> {
 
     public static final Map<ResourceLocation, ResourceLocation> WING_CACHE = new HashMap<>();
     public static final Set<ResourceLocation> NO_WING_CACHE = new HashSet<>();
 
     public boolean isReRendering = false;
 
-
     public AbstractSteedRenderer(EntityRendererProvider.Context renderManagerIn) {
         super(renderManagerIn);
     }
 
     @Override
-    public abstract GeoModel<SWEMHorseEntity> getGeoModel();
+    public abstract GeoModel<LegacySwemHorse> getGeoModel();
 
     @Override
-    public ResourceLocation getTextureLocation(SWEMHorseEntity animatable) {
-        return this.isReRendering ? null : this.getGeoModel().getTextureResource(animatable);
+    public ResourceLocation getTextureLocation(LegacySwemHorse animatable) {
+        return this.isReRendering ? null : this.getGeoModel().getTextureResource(animatable, this);
     }
 
     @Override
-    public void updateAnimatedTextureFrame(SWEMHorseEntity animatable) {
+    public void updateAnimatedTextureFrame(LegacySwemHorse animatable) {
         if(!this.isReRendering) {
             super.updateAnimatedTextureFrame(animatable);
         }
     }
 
     @Override
-    public void reRender(BakedGeoModel model, PoseStack poseStack, MultiBufferSource bufferSource, SWEMHorseEntity animatable, RenderType renderType, VertexConsumer buffer, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+    public void reRender(BakedGeoModel model, PoseStack poseStack, MultiBufferSource bufferSource, LegacySwemHorse animatable, RenderType renderType, VertexConsumer buffer, float partialTick, int packedLight, int packedOverlay, int colour) {
         this.isReRendering = true;
-        super.reRender(model, poseStack, bufferSource, animatable, renderType, buffer, partialTick, packedLight, packedOverlay, red, green, blue, alpha);
+        super.reRender(model, poseStack, bufferSource, animatable, renderType, buffer, partialTick, packedLight, packedOverlay, colour);
         this.isReRendering = false;
     }
 
     @Override
-    public void actuallyRender(PoseStack poseStack, SWEMHorseEntity animatable, BakedGeoModel model, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+    public void actuallyRender(PoseStack poseStack, LegacySwemHorse animatable, BakedGeoModel model, @Nullable RenderType renderType, MultiBufferSource bufferSource, @Nullable VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, int colour) {
         poseStack.pushPose();
-        boolean shouldSit = animatable.isPassenger() && animatable.getVehicle() != null && animatable.getVehicle().shouldRiderSit();
-        float lerpBodyRot = Mth.rotLerp(partialTick, animatable.yBodyRotO, animatable.yBodyRot);
-        float lerpHeadRot = Mth.rotLerp(partialTick, animatable.yHeadRotO, animatable.yHeadRot);
+
+        LivingEntity livingEntity = animatable instanceof LivingEntity entity ? entity : null;
+        boolean shouldSit = animatable.isPassenger() && (animatable.getVehicle() != null);
+        float lerpBodyRot = livingEntity == null ? 0 : Mth.rotLerp(partialTick, livingEntity.yBodyRotO, livingEntity.yBodyRot);
+        float lerpHeadRot = livingEntity == null ? 0 : Mth.rotLerp(partialTick, livingEntity.yHeadRotO, livingEntity.yHeadRot);
         float netHeadYaw = lerpHeadRot - lerpBodyRot;
-        float limbSwingAmount;
-        if (shouldSit) {
-            Entity vehicle = animatable.getVehicle();
-            if (vehicle instanceof LivingEntity livingentity) {
-                lerpBodyRot = Mth.rotLerp(partialTick, livingentity.yBodyRotO, livingentity.yBodyRot);
-                netHeadYaw = lerpHeadRot - lerpBodyRot;
-                limbSwingAmount = Mth.clamp(Mth.wrapDegrees(netHeadYaw), -85.0F, 85.0F);
-                lerpBodyRot = lerpHeadRot - limbSwingAmount;
-                if (limbSwingAmount * limbSwingAmount > 2500.0F) {
-                    lerpBodyRot += limbSwingAmount * 0.2F;
-                }
 
-                netHeadYaw = lerpHeadRot - lerpBodyRot;
-            }
+        if (shouldSit && animatable.getVehicle() instanceof LivingEntity livingentity) {
+            lerpBodyRot = Mth.rotLerp(partialTick, livingentity.yBodyRotO, livingentity.yBodyRot);
+            netHeadYaw = lerpHeadRot - lerpBodyRot;
+            float clampedHeadYaw = Mth.clamp(Mth.wrapDegrees(netHeadYaw), -85, 85);
+            lerpBodyRot = lerpHeadRot - clampedHeadYaw;
+
+            if (clampedHeadYaw * clampedHeadYaw > 2500f)
+                lerpBodyRot += clampedHeadYaw * 0.2f;
+
+            netHeadYaw = lerpHeadRot - lerpBodyRot;
         }
 
-        if (animatable.getPose() == Pose.SLEEPING) {
-            Direction bedDirection = animatable.getBedOrientation();
+        if (animatable.getPose() == Pose.SLEEPING && livingEntity != null) {
+            Direction bedDirection = livingEntity.getBedOrientation();
+
             if (bedDirection != null) {
-                limbSwingAmount = animatable.getEyeHeight(Pose.STANDING) - 0.1F;
-                poseStack.translate((float)(-bedDirection.getStepX()) * limbSwingAmount, 0.0F, (float)(-bedDirection.getStepZ()) * limbSwingAmount);
+                float eyePosOffset = livingEntity.getEyeHeight(Pose.STANDING) - 0.1F;
+
+                poseStack.translate(-bedDirection.getStepX() * eyePosOffset, 0, -bedDirection.getStepZ() * eyePosOffset);
             }
         }
 
-        float ageInTicks = (float)animatable.tickCount + partialTick;
-        limbSwingAmount = 0.0F;
-        float limbSwing = 0.0F;
-        this.applyRotations(animatable, poseStack, ageInTicks, lerpBodyRot, partialTick);
-        if (!shouldSit && animatable.isAlive()) {
-            limbSwingAmount = animatable.walkAnimation.speed(partialTick);
-            limbSwing = animatable.walkAnimation.position(partialTick);
-            if (((LivingEntity) animatable).isBaby()) {
-                limbSwing *= 3.0F;
-            }
+        float nativeScale = livingEntity != null ? livingEntity.getScale() : 1;
+        float ageInTicks = animatable.tickCount + partialTick;
+        float limbSwingAmount = 0;
+        float limbSwing = 0;
 
-            if (limbSwingAmount > 1.0F) {
-                limbSwingAmount = 1.0F;
-            }
+        poseStack.scale(nativeScale, nativeScale, nativeScale);
+        applyRotations(animatable, poseStack, ageInTicks, lerpBodyRot, partialTick, nativeScale);
+
+        if (!shouldSit && animatable.isAlive() && livingEntity != null) {
+            limbSwingAmount = livingEntity.walkAnimation.speed(partialTick);
+            limbSwing = livingEntity.walkAnimation.position(partialTick);
+
+            if (livingEntity.isBaby())
+                limbSwing *= 3f;
+
+            if (limbSwingAmount > 1f)
+                limbSwingAmount = 1f;
         }
 
         if (!isReRender) {
             float headPitch = Mth.lerp(partialTick, animatable.xRotO, animatable.getXRot());
-            float motionThreshold = this.getMotionAnimThreshold(animatable);
+            float motionThreshold = getMotionAnimThreshold(animatable);
             Vec3 velocity = animatable.getDeltaMovement();
-            float avgVelocity = (float)(Math.abs(velocity.x) + Math.abs(velocity.z)) / 2.0F;
-            AnimationState<SWEMHorseEntity> animationState = new AnimationState<>(animatable, limbSwing, limbSwingAmount, partialTick, avgVelocity >= motionThreshold && limbSwingAmount != 0.0F);
-            long instanceId = this.getInstanceId(animatable);
-            animationState.setData(DataTickets.TICK, ((GeoAnimatable)animatable).getTick(animatable));
+            float avgVelocity = (float)((Math.abs(velocity.x) + Math.abs(velocity.z)) / 2f);
+            AnimationState<LegacySwemHorse> animationState = new AnimationState<>(animatable, limbSwing, limbSwingAmount, partialTick, avgVelocity >= motionThreshold && limbSwingAmount != 0);
+            long instanceId = getInstanceId(animatable);
+            GeoModel<LegacySwemHorse> currentModel = getGeoModel();
+
+            animationState.setData(DataTickets.TICK, animatable.getTick(animatable));
             animationState.setData(DataTickets.ENTITY, animatable);
-            animationState.setData(DataTickets.ENTITY_MODEL_DATA, new EntityModelData(shouldSit, ((LivingEntity) animatable).isBaby(), -netHeadYaw, -headPitch));
-            this.getGeoModel().addAdditionalStateData(animatable, instanceId, animationState::setData);
-            this.getGeoModel().handleAnimations(animatable, instanceId, animationState);
+            animationState.setData(DataTickets.ENTITY_MODEL_DATA, new EntityModelData(shouldSit, livingEntity != null && livingEntity.isBaby(), -netHeadYaw, -headPitch));
+            currentModel.addAdditionalStateData(animatable, instanceId, animationState::setData);
+            currentModel.handleAnimations(animatable, instanceId, animationState, partialTick);
         }
 
-        poseStack.translate(0.0F, 0.01F, 0.0F);
+        poseStack.translate(0, 0.01f, 0);
+
         this.modelRenderTranslations = new Matrix4f(poseStack.last().pose());
-        if (animatable.isInvisibleTo(Minecraft.getInstance().player)) {
-            if (Minecraft.getInstance().shouldEntityAppearGlowing(animatable)) {
-                buffer = bufferSource.getBuffer(renderType = RenderType.outline(this.getTextureLocation(animatable)));
-            } else {
-                renderType = null;
-            }
-        }
 
-        if (renderType != null) {
-            // Im not learning mixins for this nonsense, so here we are
-            GeoRendererHack.super.actuallyRender(poseStack, animatable, model, renderType, bufferSource, buffer, isReRender, partialTick, packedLight, packedOverlay, red, green, blue, alpha);
-        }
+        if (buffer != null)
+            GeoRendererHack.super.actuallyRender(poseStack, animatable, model, renderType, bufferSource, buffer, isReRender, partialTick,
+                    packedLight, packedOverlay, colour);
 
         poseStack.popPose();
     }
 
     @Override
-    public @Nullable ResourceLocation getTextureOverrideForBone(GeoBone bone, SWEMHorseEntity currentEntity, float partialTick) {
+    public @Nullable ResourceLocation getTextureOverrideForBone(GeoBone bone, LegacySwemHorse currentEntity, float partialTick) {
         if(this.isReRendering) {
             return null;
         }

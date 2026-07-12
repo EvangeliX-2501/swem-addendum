@@ -1,8 +1,7 @@
 package com.evangelix.swemaddendum.breeds.donkey;
 
-import com.alaharranhonor.swem.forge.entities.horse.SWEMHorseEntity;
-import com.alaharranhonor.swem.forge.entities.horse.SWEMHorseEntityBase;
-import com.alaharranhonor.swem.forge.entities.horse.behaviors.impl.LineageBehavior;
+import com.alaharranhonor.swem.entity.horse.AbstractSwemHorse;
+import com.alaharranhonor.swem.entity.horse.behaviors.impl.LineageBehavior;
 import com.evangelix.swemaddendum.SwemAddendumMain;
 import com.evangelix.swemaddendum.abstract_steed.AbstractSteed;
 import com.evangelix.swemaddendum.breeds.mule.Mule;
@@ -10,12 +9,11 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.level.Level;
 
 public class Donkey extends AbstractSteed {
 
-    public Donkey(EntityType<? extends SWEMHorseEntityBase> type, Level worldIn) {
+    public Donkey(EntityType<? extends AbstractSwemHorse> type, Level worldIn) {
         super(type, worldIn);
     }
 

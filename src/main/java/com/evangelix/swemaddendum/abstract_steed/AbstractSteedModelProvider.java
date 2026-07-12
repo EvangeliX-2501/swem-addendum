@@ -1,20 +1,20 @@
 package com.evangelix.swemaddendum.abstract_steed;
 
-import com.alaharranhonor.swem.forge.client.model.SWEMHorseModel;
-import com.alaharranhonor.swem.forge.entities.horse.SWEMHorseEntity;
+import com.alaharranhonor.swem.client.horse.model.LegacyHorseModel;
+import com.alaharranhonor.swem.entity.horse.LegacySwemHorse;
 import net.minecraft.resources.ResourceLocation;
 
-public abstract class AbstractSteedModelProvider extends SWEMHorseModel {
+public abstract class AbstractSteedModelProvider extends LegacyHorseModel {
     public abstract ResourceLocation getFoalModelLocation();
     public abstract ResourceLocation getAdultModelLocation();
 
     @Override
-    public ResourceLocation getModelResource(SWEMHorseEntity swemHorseEntity) {
+    public ResourceLocation getModelResource(LegacySwemHorse swemHorseEntity) {
         return swemHorseEntity.isBaby() ? this.getFoalModelLocation() : this.getAdultModelLocation();
     }
 
     @Override
-    public ResourceLocation getTextureResource(SWEMHorseEntity swemHorseEntity) {
+    public ResourceLocation getTextureResource(LegacySwemHorse swemHorseEntity) {
         return swemHorseEntity.isBaby() ? ((AbstractSteed)swemHorseEntity).getFoalCoat() : ((AbstractSteed)swemHorseEntity).getCoat();
     }
 }

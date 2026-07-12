@@ -1,13 +1,13 @@
 package com.evangelix.swemaddendum.breeds.thoroughbred;
 
-import com.alaharranhonor.swem.forge.entities.horse.SWEMHorseEntityBase;
+import com.alaharranhonor.swem.entity.horse.AbstractSwemHorse;
 import com.evangelix.swemaddendum.abstract_steed.AbstractSteed;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
 
 public class Thoroughbred extends AbstractSteed {
 
-    public Thoroughbred(EntityType<? extends SWEMHorseEntityBase> type, Level worldIn) {
+    public Thoroughbred(EntityType<? extends AbstractSwemHorse> type, Level worldIn) {
         super(type, worldIn);
     }
 

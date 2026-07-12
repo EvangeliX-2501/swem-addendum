@@ -5,8 +5,8 @@ import com.evangelix.swemaddendum.abstract_steed.AbstractSteedModelProvider;
 import net.minecraft.resources.ResourceLocation;
 
 public class MustangModelProvider extends AbstractSteedModelProvider {
-    public static final ResourceLocation FOAL_MODEL = new ResourceLocation(SwemAddendumMain.MODID, "geo/foal/steed_foal.geo.json");
-    public static final ResourceLocation ADULT_MODEL = new ResourceLocation(SwemAddendumMain.MODID, "geo/swem_mustang.geo.json");
+    public static final ResourceLocation FOAL_MODEL = ResourceLocation.fromNamespaceAndPath(SwemAddendumMain.MODID, "geo/foal/steed_foal.geo.json");
+    public static final ResourceLocation ADULT_MODEL = ResourceLocation.fromNamespaceAndPath(SwemAddendumMain.MODID, "geo/swem_mustang.geo.json");
 
 
     @Override

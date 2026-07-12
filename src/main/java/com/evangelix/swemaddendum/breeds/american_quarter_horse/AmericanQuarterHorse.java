@@ -1,6 +1,6 @@
 package com.evangelix.swemaddendum.breeds.american_quarter_horse;
 
-import com.alaharranhonor.swem.forge.entities.horse.SWEMHorseEntityBase;
+import com.alaharranhonor.swem.entity.horse.AbstractSwemHorse;
 import com.evangelix.swemaddendum.abstract_steed.AbstractSteed;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -8,7 +8,7 @@ import net.minecraft.world.level.Level;
 
 public class AmericanQuarterHorse extends AbstractSteed {
 
-    public AmericanQuarterHorse(EntityType<? extends SWEMHorseEntityBase> type, Level worldIn) {
+    public AmericanQuarterHorse(EntityType<? extends AbstractSwemHorse> type, Level worldIn) {
         super(type, worldIn);
     }
 

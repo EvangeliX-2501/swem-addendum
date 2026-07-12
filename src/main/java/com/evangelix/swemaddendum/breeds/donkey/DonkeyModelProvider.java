@@ -5,8 +5,8 @@ import com.evangelix.swemaddendum.abstract_steed.AbstractSteedModelProvider;
 import net.minecraft.resources.ResourceLocation;
 
 public class DonkeyModelProvider extends AbstractSteedModelProvider {
-    public static final ResourceLocation FOAL_MODEL = new ResourceLocation(SwemAddendumMain.MODID, "geo/foal/donkey_foal.geo.json");
-    public static final ResourceLocation ADULT_MODEL = new ResourceLocation(SwemAddendumMain.MODID, "geo/swem_donkey.geo.json");
+    public static final ResourceLocation FOAL_MODEL = ResourceLocation.fromNamespaceAndPath(SwemAddendumMain.MODID, "geo/foal/donkey_foal.geo.json");
+    public static final ResourceLocation ADULT_MODEL = ResourceLocation.fromNamespaceAndPath(SwemAddendumMain.MODID, "geo/swem_donkey.geo.json");
 
     @Override
     public ResourceLocation getFoalModelLocation() {

@@ -6,8 +6,8 @@ import net.minecraft.resources.ResourceLocation;
 
 public class IrishDraughtModelProvider extends AbstractSteedModelProvider {
 
-    public static final ResourceLocation FOAL_MODEL = new ResourceLocation(SwemAddendumMain.MODID, "geo/foal/steed_foal.geo.json");
-    public static final ResourceLocation ADULT_MODEL = new ResourceLocation("swem", "geo/entity/horse/swem_horse.geo.json");
+    public static final ResourceLocation FOAL_MODEL = ResourceLocation.fromNamespaceAndPath(SwemAddendumMain.MODID, "geo/foal/steed_foal.geo.json");
+    public static final ResourceLocation ADULT_MODEL = ResourceLocation.fromNamespaceAndPath("swem", "geo/entity/horse/swem_horse.geo.json");
 
 
     @Override

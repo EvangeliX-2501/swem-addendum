@@ -41,7 +41,7 @@ public class TextureGen {
                 return MissingTextureAtlasSprite.getLocation();
             }
         }
-        if(allTextures.size() == 0) {
+        if(allTextures.isEmpty()) {
             SwemAddendumMain.LOGGER.error("Failed to randomly get a client coat from: " + folderName);
             return MissingTextureAtlasSprite.getLocation();
         }
@@ -72,7 +72,7 @@ public class TextureGen {
                 return MissingTextureAtlasSprite.getLocation();
             }
         }
-        if(allTextures.size() == 0) {
+        if(allTextures.isEmpty()) {
             SwemAddendumMain.LOGGER.error("Failed to randomly get a server coat from: " + folderName);
             return MissingTextureAtlasSprite.getLocation();
         }
